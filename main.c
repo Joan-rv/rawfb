@@ -18,7 +18,8 @@ int main() {
     struct fb_var_screeninfo screeninfo;
     int retval = ioctl(fb_fd, FBIOGET_VSCREENINFO, &screeninfo);
     if (retval < 0) {
-        fprintf(stderr, "Failed to call ioctl\n%s\n", strerror(errno));
+        fprintf(stderr, "Failed to call screeninfo ioctl\n%s\n",
+                strerror(errno));
         close(fb_fd);
         return -1;
     }
@@ -29,7 +30,7 @@ int main() {
     cursor.enable = false;
     retval = ioctl(fb_fd, FBIO_CURSOR, &cursor);
     if (retval < 0) {
-        fprintf(stderr, "Failed to call ioctl\n%s\n", strerror(errno));
+        fprintf(stderr, "Failed to call cursor ioctl\n%s\n", strerror(errno));
         close(fb_fd);
         return -1;
     }
