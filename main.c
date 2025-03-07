@@ -25,18 +25,6 @@ int main() {
         return -1;
     }
     size_t fb_size = 4 * screeninfo.xres * screeninfo.yres;
-    struct fb_cursor cursor;
-    memset(&cursor, 0, sizeof(struct fb_cursor));
-    cursor.set = FB_CUR_SETALL;
-    cursor.enable = false;
-    retval = ioctl(fb_fd, FBIO_CURSOR, &cursor);
-    if (retval < 0) {
-        fprintf(stderr, "Failed to call cursor ioctl\n%s\n", strerror(errno));
-        /*
-        close(fb_fd);
-        return -1;
-        */
-    }
 
     uint32_t *buf = malloc(fb_size);
     if (buf == NULL) {
