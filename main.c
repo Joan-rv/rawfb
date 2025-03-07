@@ -27,7 +27,7 @@ int main() {
     memset(&cursor, 0, sizeof(struct fb_cursor));
     cursor.set = FB_CUR_SETALL;
     cursor.enable = false;
-    ioctl(fb_fd, FBIO_CURSOR, &cursor);
+    retval = ioctl(fb_fd, FBIO_CURSOR, &cursor);
     if (retval < 0) {
         fprintf(stderr, "Failed to call ioctl\n%s\n", strerror(errno));
         close(fb_fd);
