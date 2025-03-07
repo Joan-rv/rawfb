@@ -24,6 +24,20 @@ void enable_graphics_mode() {
     close(fd);
 }
 
+void disable_graphics_mode() {
+    int fd = open("/dev/console", O_WRONLY);
+    if (fd == -1) {
+        fprintf(stderr, "Failed to open console\n%s\n", strerror(errno));
+        return;
+    }
+    int retval = ioctl(fd, KDSETMODE, KD_TEXT);
+    if (retval < 0) {
+        fprintf(stderr, "Failed ioctl to set graphics mode\n%s\n",
+                strerror(errno));
+    }
+    close(fd);
+}
+
 int main() {
     int fb_fd = open("/dev/fb0", O_WRONLY);
     if (fb_fd < 0) {
@@ -72,6 +86,8 @@ int main() {
         }
         usleep(10000);
     }
+
+    disable_graphics_mode();
 
     free(buf);
     close(fb_fd);
