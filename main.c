@@ -11,6 +11,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "keyboard.h"
+
 void enable_graphics_mode() {
     int fd = open("/dev/console", O_WRONLY);
     if (fd == -1) {
@@ -71,14 +73,10 @@ int main() {
         buf[i] = 0xff << 24 | r << 16 | g << 8 | b;
     }
 
-    int kb_fd = open("/dev/input/event2", O_RDONLY | O_NONBLOCK);
-    if (kb_fd < 0) {
-        fprintf(stderr, "Failed to open keyboard\n%s\n", strerror(errno));
-        free(buf);
-        close(fb_fd);
-    }
+    struct fd_vec keyboard_fds = find_keyboards();
 
-    while (1) {
+    bool running = true;
+    while (running) {
         if (write(fb_fd, buf, fb_size) < 0) {
             fprintf(stderr, "Failed to write to framebuffer\n%s\n",
                     strerror(errno));
@@ -94,15 +92,16 @@ int main() {
         }
 
         struct input_event kb_event;
-        if (read(kb_fd, &kb_event, sizeof(kb_event)) == sizeof(kb_event)) {
+        while (poll_keyboards(keyboard_fds, &kb_event)) {
             if (kb_event.code == KEY_ESC) {
-                break;
+                running = false;
             }
         }
 
         usleep(10000);
     }
 
+    free_keyboards(keyboard_fds);
     disable_graphics_mode();
 
     free(buf);
