@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,17 +32,24 @@ int main() {
     retval = ioctl(fb_fd, FBIO_CURSOR, &cursor);
     if (retval < 0) {
         fprintf(stderr, "Failed to call cursor ioctl\n%s\n", strerror(errno));
+        /*
         close(fb_fd);
         return -1;
+        */
     }
 
-    char *buf = malloc(fb_size);
+    uint32_t *buf = malloc(fb_size);
     if (buf == NULL) {
         fprintf(stderr, "Failed to allocate memory\n%s\n", strerror(errno));
         close(fb_fd);
         return -1;
     }
-    memset(buf, 0xff, fb_size);
+    for (size_t i = 0; i < fb_size / 4; i++) {
+        uint8_t r = i % 255;
+        uint8_t g = (i / 255) % 255;
+        uint8_t b = (i / 255 / 255) % 255;
+        buf[i] = 0xff << 24 | r << 16 | g << 8 | b;
+    }
 
     while (1) {
         if (write(fb_fd, buf, fb_size) < 0) {
