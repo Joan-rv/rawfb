@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <linux/input.h>
 #include <linux/kd.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -70,6 +71,13 @@ int main() {
         buf[i] = 0xff << 24 | r << 16 | g << 8 | b;
     }
 
+    int kb_fd = open("/dev/input/event2", O_RDONLY | O_NONBLOCK);
+    if (kb_fd < 0) {
+        fprintf(stderr, "Failed to open keyboard\n%s\n", strerror(errno));
+        free(buf);
+        close(fb_fd);
+    }
+
     while (1) {
         if (write(fb_fd, buf, fb_size) < 0) {
             fprintf(stderr, "Failed to write to framebuffer\n%s\n",
@@ -84,6 +92,14 @@ int main() {
             free(buf);
             close(fb_fd);
         }
+
+        struct input_event kb_event;
+        if (read(kb_fd, &kb_event, sizeof(kb_event)) == sizeof(kb_event)) {
+            if (kb_event.code == KEY_ESC) {
+                break;
+            }
+        }
+
         usleep(10000);
     }
 
