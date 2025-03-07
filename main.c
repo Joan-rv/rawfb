@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <linux/kd.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -8,6 +9,20 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+void enable_graphics_mode() {
+    int fd = open("/dev/console", O_WRONLY);
+    if (fd == -1) {
+        fprintf(stderr, "Failed to open console\n%s\n", strerror(errno));
+        return;
+    }
+    int retval = ioctl(fd, KDSETMODE, KD_GRAPHICS);
+    if (retval < 0) {
+        fprintf(stderr, "Failed ioctl to set graphics mode\n%s\n",
+                strerror(errno));
+    }
+    close(fd);
+}
 
 int main() {
     int fb_fd = open("/dev/fb0", O_WRONLY);
@@ -25,6 +40,8 @@ int main() {
         return -1;
     }
     size_t fb_size = 4 * screeninfo.xres * screeninfo.yres;
+
+    enable_graphics_mode();
 
     uint32_t *buf = malloc(fb_size);
     if (buf == NULL) {
