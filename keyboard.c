@@ -13,13 +13,13 @@
 int open_kb(DIR *kb_dir, char *kb_path) {
     int kb_fd = openat(dirfd(kb_dir), kb_path, O_RDONLY | O_NONBLOCK);
     if (kb_fd < 0) {
-        fprintf(stderr, "Failed to open keyboard\n%s\n", strerror(errno));
+        perror("Failed to open keyboard");
         return -1;
     }
 
     unsigned long ev_bits[(EV_MAX + 7) / 8] = {0};
     if (ioctl(kb_fd, EVIOCGBIT(0, sizeof(ev_bits)), ev_bits) < 0) {
-        fprintf(stderr, "Failed to get keyboard info\n%s\n", strerror(errno));
+        perror("Failed to get keyboard info");
         close(kb_fd);
         return -2;
     }
@@ -37,7 +37,7 @@ bool fd_vec_push(struct fd_vec *vec, size_t *cap, int fd) {
         *cap *= 2;
         vec->fds = realloc(vec->fds, *cap * sizeof(int));
         if (vec->fds == NULL) {
-            fprintf(stderr, "Memory allocation error\n%s\n", strerror(errno));
+            perror("Memory allocation error");
             return false;
         }
     }
@@ -51,14 +51,13 @@ struct fd_vec find_keyboards() {
     size_t capacity = 5;
     struct fd_vec kb_fds = {.fds = malloc(5 * sizeof(int)), .size = 0};
     if (kb_fds.fds == NULL) {
-        fprintf(stderr, "Memory allocation error\n%s\n", strerror(errno));
+        perror("Memory allocation error");
         return kb_fds;
     }
 
     DIR *kb_dir = opendir("/dev/input");
     if (kb_dir == NULL) {
-        fprintf(stderr, "Failed to open input directory\n%s\n",
-                strerror(errno));
+        perror("Failed to open input directory");
         return kb_fds;
     }
 
@@ -78,8 +77,7 @@ struct fd_vec find_keyboards() {
     }
 
     if (errno != 0) {
-        fprintf(stderr, "Failed to enumerate input directory\n%s\n",
-                strerror(errno));
+        perror("Failed to enumerate input directory");
     }
 
     closedir(kb_dir);

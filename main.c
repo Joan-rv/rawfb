@@ -16,13 +16,12 @@
 void enable_graphics_mode() {
     int fd = open("/dev/console", O_WRONLY);
     if (fd == -1) {
-        fprintf(stderr, "Failed to open console\n%s\n", strerror(errno));
+        perror("Failed to open console");
         return;
     }
     int retval = ioctl(fd, KDSETMODE, KD_GRAPHICS);
     if (retval < 0) {
-        fprintf(stderr, "Failed ioctl to set graphics mode\n%s\n",
-                strerror(errno));
+        perror("Failed ioctl to set graphics mode");
     }
     close(fd);
 }
@@ -30,13 +29,12 @@ void enable_graphics_mode() {
 void disable_graphics_mode() {
     int fd = open("/dev/console", O_WRONLY);
     if (fd == -1) {
-        fprintf(stderr, "Failed to open console\n%s\n", strerror(errno));
+        perror("Failed to open console");
         return;
     }
     int retval = ioctl(fd, KDSETMODE, KD_TEXT);
     if (retval < 0) {
-        fprintf(stderr, "Failed ioctl to set graphics mode\n%s\n",
-                strerror(errno));
+        perror("Failed ioctl to set text mode");
     }
     close(fd);
 }
@@ -44,15 +42,14 @@ void disable_graphics_mode() {
 int main() {
     int fb_fd = open("/dev/fb0", O_WRONLY);
     if (fb_fd < 0) {
-        fprintf(stderr, "Failed to open fb0\n%s\n", strerror(errno));
+        perror("Failed to open fb0");
         return -1;
     }
 
     struct fb_var_screeninfo screeninfo;
     int retval = ioctl(fb_fd, FBIOGET_VSCREENINFO, &screeninfo);
     if (retval < 0) {
-        fprintf(stderr, "Failed to call screeninfo ioctl\n%s\n",
-                strerror(errno));
+        perror("Failed to call screeninfo ioctl");
         close(fb_fd);
         return -1;
     }
@@ -62,7 +59,7 @@ int main() {
 
     uint32_t *buf = malloc(fb_size);
     if (buf == NULL) {
-        fprintf(stderr, "Failed to allocate memory\n%s\n", strerror(errno));
+        perror("Failed to allocate memory");
         close(fb_fd);
         return -1;
     }
@@ -78,15 +75,13 @@ int main() {
     bool running = true;
     while (running) {
         if (write(fb_fd, buf, fb_size) < 0) {
-            fprintf(stderr, "Failed to write to framebuffer\n%s\n",
-                    strerror(errno));
+            perror("Failed to write to framebuffer");
             free(buf);
             close(fb_fd);
             return -1;
         }
         if (lseek(fb_fd, 0, SEEK_SET) < 0) {
-            fprintf(stderr, "Failed to seek to framebuffer beggining\n%s\n",
-                    strerror(errno));
+            perror("Failed to seek to framebuffer beggining");
             free(buf);
             close(fb_fd);
         }
