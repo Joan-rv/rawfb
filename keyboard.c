@@ -96,6 +96,8 @@ bool poll_keyboards(struct fd_vec kb_fds, struct input_event *out) {
 }
 
 void free_keyboards(struct fd_vec kb_fds) {
+    if (kb_fds.fds == NULL)
+        return;
     for (size_t i = 0; i < kb_fds.size; i++) {
         close(kb_fds.fds[i]);
     }
