@@ -62,11 +62,14 @@ int main() {
         close(fb_fd);
         return -1;
     }
-    for (size_t i = 0; i < fb_size / 4; i++) {
-        uint8_t r = i % 255;
-        uint8_t g = (i / 255) % 255;
-        uint8_t b = (i / 255 / 255) % 255;
-        buf[i] = 0xff << 24 | r << 16 | g << 8 | b;
+    for (size_t i = 0; i < screeninfo.yres; i++) {
+        for (size_t j = 0; j < screeninfo.xres; j++) {
+            uint8_t r = 255 * i / screeninfo.yres;
+            // printf("i = %lu, r = %hhu", i, r);
+            uint8_t g = r;
+            uint8_t b = r;
+            buf[i * screeninfo.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
+        }
     }
 
     struct fd_vec keyboard_fds = find_keyboards();
