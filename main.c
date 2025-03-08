@@ -54,6 +54,8 @@ int main() {
             uint8_t g = r;
             uint8_t b = r;
             disp.buffer[i * disp.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
+            struct color col = {0xff, r, g, b};
+            set_pixel(disp, i, j, col);
         }
     }
 

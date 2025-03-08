@@ -52,6 +52,11 @@ void render_frame(struct display disp) {
     memcpy(disp.framebuffer, disp.buffer, 4 * disp.xres * disp.yres);
 }
 
+void set_pixel(struct display disp, size_t y, size_t x, struct color col) {
+    uint32_t pixel = col.a << 24 | col.r << 16 | col.g << 8 | col.b;
+    disp.buffer[y * disp.xres + x] = pixel;
+}
+
 void display_free(struct display disp) {
     free(disp.buffer);
     munmap(disp.framebuffer, 4 * disp.xres * disp.yres);
