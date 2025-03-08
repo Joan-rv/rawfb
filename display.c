@@ -57,6 +57,12 @@ void set_pixel(struct display disp, size_t y, size_t x, struct color col) {
     disp.buffer[y * disp.xres + x] = pixel;
 }
 
+struct color get_pixel(struct display disp, size_t y, size_t x) {
+    uint32_t pixel = disp.buffer[y * disp.xres + x];
+    struct color col = {pixel >> 24, pixel >> 16, pixel >> 8, pixel};
+    return col;
+}
+
 void display_free(struct display disp) {
     free(disp.buffer);
     munmap(disp.framebuffer, 4 * disp.xres * disp.yres);
