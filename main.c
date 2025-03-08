@@ -51,7 +51,6 @@ int main() {
     for (size_t i = 0; i < disp.yres; i++) {
         for (size_t j = 0; j < disp.xres; j++) {
             uint8_t r = 255 * i / disp.yres;
-            // printf("i = %lu, r = %hhu", i, r);
             uint8_t g = r;
             uint8_t b = r;
             disp.buffer[i * disp.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
