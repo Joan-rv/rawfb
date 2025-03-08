@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -Wpedantic -Werror -g
-OBJ=main.o keyboard.o
+OBJ=main.o keyboard.o display.o
 
 main: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^

@@ -10,6 +10,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "display.h"
 #include "keyboard.h"
 
 void enable_graphics_mode() {
@@ -39,36 +40,21 @@ void disable_graphics_mode() {
 }
 
 int main() {
-    int fb_fd = open("/dev/fb0", O_WRONLY);
-    if (fb_fd < 0) {
-        perror("Failed to open fb0");
+    struct display disp = display_init();
+    if (disp.framebuffer == NULL) {
+        perror("Failed to initialize display");
         return -1;
     }
 
-    struct fb_var_screeninfo screeninfo;
-    int retval = ioctl(fb_fd, FBIOGET_VSCREENINFO, &screeninfo);
-    if (retval < 0) {
-        perror("Failed to call screeninfo ioctl");
-        close(fb_fd);
-        return -1;
-    }
-    size_t fb_size = 4 * screeninfo.xres * screeninfo.yres;
+    // enable_graphics_mode();
 
-    enable_graphics_mode();
-
-    uint32_t *buf = malloc(fb_size);
-    if (buf == NULL) {
-        perror("Failed to allocate memory");
-        close(fb_fd);
-        return -1;
-    }
-    for (size_t i = 0; i < screeninfo.yres; i++) {
-        for (size_t j = 0; j < screeninfo.xres; j++) {
-            uint8_t r = 255 * i / screeninfo.yres;
+    for (size_t i = 0; i < disp.yres; i++) {
+        for (size_t j = 0; j < disp.xres; j++) {
+            uint8_t r = 255 * i / disp.yres;
             // printf("i = %lu, r = %hhu", i, r);
             uint8_t g = r;
             uint8_t b = r;
-            buf[i * screeninfo.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
+            disp.buffer[i * disp.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
         }
     }
 
@@ -76,17 +62,7 @@ int main() {
 
     bool running = true;
     while (running) {
-        if (write(fb_fd, buf, fb_size) < 0) {
-            perror("Failed to write to framebuffer");
-            free(buf);
-            close(fb_fd);
-            return -1;
-        }
-        if (lseek(fb_fd, 0, SEEK_SET) < 0) {
-            perror("Failed to seek to framebuffer beggining");
-            free(buf);
-            close(fb_fd);
-        }
+        render_frame(disp);
 
         struct input_event kb_event;
         while (poll_keyboards(keyboard_fds, &kb_event)) {
@@ -99,9 +75,8 @@ int main() {
     }
 
     free_keyboards(keyboard_fds);
+    display_free(disp);
     disable_graphics_mode();
 
-    free(buf);
-    close(fb_fd);
     return 0;
 }
