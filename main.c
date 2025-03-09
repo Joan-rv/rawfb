@@ -46,7 +46,7 @@ void draw_circle(struct display disp) {
     for (double theta = 0; theta < 2 * M_PI; theta += 0.01f) {
         size_t x = r * cos(theta);
         size_t y = r * sin(theta);
-        set_pixel(disp, disp.yres / 2 + x, disp.xres / 2 + y, white);
+        display_set_pixel(disp, disp.yres / 2 + x, disp.xres / 2 + y, white);
     }
 }
 
@@ -64,9 +64,9 @@ int main() {
     bool running = true;
     struct color black = {0xff, 0x00, 0x00, 0x00};
     while (running) {
-        clear(disp, black);
+        display_clear(disp, black);
         draw_circle(disp);
-        render_frame(disp);
+        display_render_frame(disp);
 
         struct input_event kb_event;
         while (poll_keyboards(keyboard_fds, &kb_event)) {

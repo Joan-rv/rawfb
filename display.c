@@ -52,21 +52,22 @@ struct display display_init() {
     return disp;
 }
 
-void render_frame(struct display disp) {
+void display_render_frame(struct display disp) {
     memcpy(disp.framebuffer, disp.buffer, 4 * disp.xres * disp.yres);
 }
 
-void set_pixel(struct display disp, size_t y, size_t x, struct color col) {
+void display_set_pixel(struct display disp, size_t y, size_t x,
+                       struct color col) {
     disp.buffer[y * disp.xres + x] = color_to_pixel(col);
 }
 
-struct color get_pixel(struct display disp, size_t y, size_t x) {
+struct color display_get_pixel(struct display disp, size_t y, size_t x) {
     uint32_t pixel = disp.buffer[y * disp.xres + x];
     struct color col = {pixel >> 24, pixel >> 16, pixel >> 8, pixel};
     return col;
 }
 
-void clear(struct display disp, struct color clear_col) {
+void display_clear(struct display disp, struct color clear_col) {
     uint32_t pixel = color_to_pixel(clear_col);
     for (size_t i = 0; i < disp.xres * disp.yres; i++) {
         disp.buffer[i] = pixel;
