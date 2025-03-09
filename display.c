@@ -9,6 +9,10 @@
 
 #include "display.h"
 
+uint32_t color_to_pixel(struct color col) {
+    return col.a << 24 | col.r << 16 | col.g << 8 | col.b;
+}
+
 struct display display_init() {
     struct display disp = {
         .xres = 0, .yres = 0, .framebuffer = NULL, .buffer = NULL};
@@ -53,8 +57,7 @@ void render_frame(struct display disp) {
 }
 
 void set_pixel(struct display disp, size_t y, size_t x, struct color col) {
-    uint32_t pixel = col.a << 24 | col.r << 16 | col.g << 8 | col.b;
-    disp.buffer[y * disp.xres + x] = pixel;
+    disp.buffer[y * disp.xres + x] = color_to_pixel(col);
 }
 
 struct color get_pixel(struct display disp, size_t y, size_t x) {
@@ -64,8 +67,7 @@ struct color get_pixel(struct display disp, size_t y, size_t x) {
 }
 
 void clear(struct display disp, struct color clear_col) {
-    uint32_t pixel =
-        clear_col.a << 24 | clear_col.r << 16 | clear_col.g << 8 | clear_col.b;
+    uint32_t pixel = color_to_pixel(clear_col);
     for (size_t i = 0; i < disp.xres * disp.yres; i++) {
         disp.buffer[i] = pixel;
     }
