@@ -59,12 +59,13 @@ int main() {
 
     // enable_graphics_mode();
 
-    draw_circle(disp);
-
     struct fd_vec keyboard_fds = find_keyboards();
 
     bool running = true;
+    struct color black = {0xff, 0x00, 0x00, 0x00};
     while (running) {
+        clear(disp, black);
+        draw_circle(disp);
         render_frame(disp);
 
         struct input_event kb_event;

@@ -63,6 +63,14 @@ struct color get_pixel(struct display disp, size_t y, size_t x) {
     return col;
 }
 
+void clear(struct display disp, struct color clear_col) {
+    uint32_t pixel =
+        clear_col.a << 24 | clear_col.r << 16 | clear_col.g << 8 | clear_col.b;
+    for (size_t i = 0; i < disp.xres * disp.yres; i++) {
+        disp.buffer[i] = pixel;
+    }
+}
+
 void display_free(struct display disp) {
     free(disp.buffer);
     munmap(disp.framebuffer, 4 * disp.xres * disp.yres);
