@@ -2,6 +2,7 @@
 #include <linux/fb.h>
 #include <linux/input.h>
 #include <linux/kd.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -39,6 +40,16 @@ void disable_graphics_mode() {
     close(fd);
 }
 
+void draw_circle(struct display disp) {
+    struct color white = {0xff, 0xff, 0xff, 0xff};
+    size_t r = 100;
+    for (double theta = 0; theta < 2 * M_PI; theta += 0.01f) {
+        size_t x = r * cos(theta);
+        size_t y = r * sin(theta);
+        set_pixel(disp, disp.yres / 2 + x, disp.xres / 2 + y, white);
+    }
+}
+
 int main() {
     struct display disp = display_init();
     if (disp.framebuffer == NULL) {
@@ -48,16 +59,7 @@ int main() {
 
     // enable_graphics_mode();
 
-    for (size_t i = 0; i < disp.yres; i++) {
-        for (size_t j = 0; j < disp.xres; j++) {
-            uint8_t r = 255 * i / disp.yres;
-            uint8_t g = r;
-            uint8_t b = r;
-            disp.buffer[i * disp.xres + j] = 0xff << 24 | r << 16 | g << 8 | b;
-            struct color col = {0xff, r, g, b};
-            set_pixel(disp, i, j, col);
-        }
-    }
+    draw_circle(disp);
 
     struct fd_vec keyboard_fds = find_keyboards();
 
