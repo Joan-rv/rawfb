@@ -9,7 +9,7 @@
 
 #include "display.h"
 
-uint32_t color_to_pixel(struct color col) {
+static uint32_t color_to_pixel(struct color col) {
     return col.a << 24 | col.r << 16 | col.g << 8 | col.b;
 }
 
