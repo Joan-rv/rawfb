@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <linux/fb.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -8,6 +9,7 @@ struct display {
     size_t xres, yres;
     void *framebuffer;
     uint32_t *buffer;
+    int fd;
 };
 
 struct color {

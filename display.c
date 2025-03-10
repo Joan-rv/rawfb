@@ -37,7 +37,6 @@ struct display display_init() {
         close(fb_fd);
         return disp;
     }
-    close(fb_fd);
 
     uint32_t *buffer = malloc(4 * screeninfo.xres * screeninfo.yres);
     if (buffer == NULL) {
@@ -49,11 +48,14 @@ struct display display_init() {
     disp.yres = screeninfo.yres;
     disp.framebuffer = framebuffer;
     disp.buffer = buffer;
+    disp.fd = fb_fd;
     return disp;
 }
 
 void display_render_frame(struct display disp) {
     memcpy(disp.framebuffer, disp.buffer, 4 * disp.xres * disp.yres);
+    ioctl(disp.fd, FBIOPAN_DISPLAY, NULL);
+    perror("ioctl");
 }
 
 void display_set_pixel(struct display disp, size_t y, size_t x,
