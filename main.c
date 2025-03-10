@@ -38,13 +38,17 @@ void disable_graphics_mode() {
     close(fd);
 }
 
-void draw_circle(struct display disp) {
+void draw_circle(struct display disp, double dt) {
     struct color white = {0xff, 0xff, 0xff, 0xff};
+    static double x_0 = 100.0f;
+    static double y_0 = 100.0f;
+    x_0 += 10 * dt;
+    y_0 += 10 * dt;
     size_t r = 100;
     for (double theta = 0; theta < 2 * M_PI; theta += 0.01f) {
         size_t x = r * cos(theta);
         size_t y = r * sin(theta);
-        display_set_pixel(disp, disp.yres / 2 + x, disp.xres / 2 + y, white);
+        display_set_pixel(disp, (size_t)y_0 + y, (size_t)x_0 + x, white);
     }
 }
 
@@ -75,7 +79,7 @@ int main() {
         double dt = time_curr - time_prev;
         time_prev = time_curr;
         display_clear(disp, black);
-        draw_circle(disp);
+        draw_circle(disp, dt);
         display_render_frame(disp);
 
         struct input_event kb_event;
