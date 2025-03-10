@@ -1,3 +1,4 @@
+#include <bits/time.h>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <linux/kd.h>
@@ -5,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "display.h"
@@ -46,6 +48,14 @@ void draw_circle(struct display disp) {
     }
 }
 
+double time_as_double(clockid_t clockid) {
+    struct timespec tp;
+    if (clock_gettime(clockid, &tp) < 0) {
+        perror("Failed to get clock time");
+    }
+    return tp.tv_sec + (double)tp.tv_nsec / 1000000000;
+}
+
 int main() {
     struct display disp = display_init();
     if (disp.framebuffer == NULL) {
@@ -57,9 +67,13 @@ int main() {
 
     struct fd_vec keyboard_fds = find_keyboards();
 
+    double time_prev = time_as_double(CLOCK_MONOTONIC);
     bool running = true;
     struct color black = {0xff, 0x00, 0x00, 0x00};
     while (running) {
+        double time_curr = time_as_double(CLOCK_MONOTONIC);
+        double dt = time_curr - time_prev;
+        time_prev = time_curr;
         display_clear(disp, black);
         draw_circle(disp);
         display_render_frame(disp);
