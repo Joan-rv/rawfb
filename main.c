@@ -1,13 +1,9 @@
 #include <fcntl.h>
-#include <linux/fb.h>
 #include <linux/input.h>
 #include <linux/kd.h>
 #include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
